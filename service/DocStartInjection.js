@@ -44,12 +44,12 @@ var DocStartInjection = (() => {
 
   async function begin(request) {
     let scripts = new Set();
-    let {tabId, frameId, url} = request;
+    let {tabId, frameId, cookieStoreId, url} = request;
     if (tabId < 0 || !/^(?:(?:https?|ftp|data|blob|file):|about:blank$)/.test(url)) return;
 
     await Promise.all([...scriptBuilders].map(async buildScript => {
       try {
-        let script = await buildScript({tabId, frameId, url});
+        let script = await buildScript({tabId, frameId, cookieStoreId, url});
         if (script) scripts.add(`try {
           ${typeof script === "function" ? `(${script})();` : script}
           } catch (e) {
