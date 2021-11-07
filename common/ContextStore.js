@@ -53,12 +53,17 @@ var ContextStore = (() => {
       this.snapshot === other.snapshot;
     }
 
-    async updateContainers() {
+    async updateContainers(defaultPolicy = null) {
       var identities = await browser.contextualIdentities.query({});
       if (!identities) return;
       identities.forEach(({cookieStoreId}) => {
         if (!this.policies.hasOwnProperty(cookieStoreId)) {
-          this.policies[cookieStoreId] = new Policy();
+          if (!defaultPolicy) {
+            defaultPolicy = new Policy().dry();
+          } else if (typeof defaultPolicy.dry == 'function') {
+            defaultPolicy = defaultPolicy.dry();
+          }
+          this.policies[cookieStoreId] = new Policy(defaultPolicy);
         }
       })
     }
