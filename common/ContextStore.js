@@ -53,6 +53,14 @@ var ContextStore = (() => {
       this.snapshot === other.snapshot;
     }
 
+    updatePresets(policy) {
+      Object.entries(this.policies).forEach(([cookieStoreId, containerPolicy]) => {
+        containerPolicy.DEFAULT.capabilities = new Set(policy.DEFAULT.capabilities);
+        containerPolicy.TRUSTED.capabilities = new Set(policy.TRUSTED.capabilities);
+        containerPolicy.UNTRUSTED.capabilities = new Set(policy.UNTRUSTED.capabilities);
+      });
+    }
+
     async updateContainers(defaultPolicy = null) {
       var identities = await browser.contextualIdentities.query({});
       if (!identities) return;
