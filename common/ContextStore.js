@@ -62,7 +62,7 @@ var ContextStore = (() => {
     }
 
     async updateContainers(defaultPolicy = null) {
-      var identities = await browser.contextualIdentities.query({});
+      var identities = browser.contextualIdentities && await browser.contextualIdentities.query({});
       if (!identities) return;
       identities.forEach(({cookieStoreId}) => {
         if (!this.policies.hasOwnProperty(cookieStoreId)) {
