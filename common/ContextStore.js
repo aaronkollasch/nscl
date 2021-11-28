@@ -1,5 +1,22 @@
-
-
+/*
+ * NoScript Commons Library
+ * Reusable building blocks for cross-browser security/privacy WebExtensions.
+ * Copyright (C) 2020-2021 Giorgio Maone <https://maone.net>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 var ContextStore = (() => {
   'use strict';
@@ -16,26 +33,20 @@ var ContextStore = (() => {
     }
 
     static hydrate(dry, contextObj) {
-//       debug("HYDRATE", contextObj);
       let newPolicies = new Object();
       for (const [cookieStoreId, policy] of Object.entries(dry.policies)) {
         newPolicies[cookieStoreId] = new Policy(contextObj.policies[cookieStoreId]);
-//         debug("HYDRATED-PART", cookieStoreId, policy, newPolicies[cookieStoreId]);
       }
       newContextStore = contextObj ? Object.assign(ContextStore, ({policies: newPolicies}))
         : new ContextStore({policies: newPolicies});
-//       debug("HYDRATED", newPolicies, newContextStore);
       return newContextStore();
     }
 
     dry(includeTemp = false) {
       var policies = Object.assign({}, this.policies);
-//       debug("DRY", this);
       for (const [cookieStoreId, policy] of Object.entries(policies)) {
         policies[cookieStoreId] = policy.dry(includeTemp);
-//         debug("DRIED-PART", cookieStoreId, policy, policies[cookieStoreId]);
       }
-//       debug("DRIED", ({policies}));
       return ({policies});
     }
 
@@ -79,4 +90,3 @@ var ContextStore = (() => {
 
   return ContextStore;
 })();
-
