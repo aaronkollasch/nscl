@@ -50,9 +50,11 @@ var ContextStore = (() => {
       return ({policies});
     }
 
-    setAll(key, value) {
-      for (const [cookieStoreId, policy] of Object.entries(this.policies)) {
-        policy[key] = value;
+    setAll(params = {}) {
+      for (const [key, value] of Object.entries(params)) {
+        for (const [cookieStoreId, policy] of Object.entries(this.policies)) {
+          policy[key] = value;
+        }
       }
     }
 
