@@ -24,6 +24,7 @@ var ContextStore = (() => {
   class ContextStore {
 
     constructor(contextStoreData) {
+      this.enabled = Boolean(contextStoreData && contextStoreData.enabled);
       this.policies = ({});
       if (contextStoreData && contextStoreData.policies) {
         for (const [cookieStoreId, policy] of Object.entries(contextStoreData.policies)) {
@@ -37,9 +38,13 @@ var ContextStore = (() => {
       for (const [cookieStoreId, policy] of Object.entries(dry.policies)) {
         newPolicies[cookieStoreId] = new Policy(contextObj.policies[cookieStoreId]);
       }
-      newContextStore = contextObj ? Object.assign(ContextStore, ({policies: newPolicies}))
-        : new ContextStore({policies: newPolicies});
-      return newContextStore();
+      var newContextStore = ({
+        enabled: dry.enabled,
+        policies: newPolicies,
+      });
+      newContextStore = contextObj ? Object.assign(contextObj, newContextStore)
+        : new ContextStore(newContextStore);
+      return newContextStore;
     }
 
     dry(includeTemp = false) {
@@ -47,7 +52,10 @@ var ContextStore = (() => {
       for (const [cookieStoreId, policy] of Object.entries(policies)) {
         policies[cookieStoreId] = policy.dry(includeTemp);
       }
-      return ({policies});
+      return ({
+        enabled: this.enabled,
+        policies,
+      });
     }
 
     setAll(params = {}) {
@@ -75,7 +83,7 @@ var ContextStore = (() => {
     }
 
     async updateContainers(defaultPolicy = null) {
-      var identities = browser.contextualIdentities && await browser.contextualIdentities.query({});
+      var identities = this.enabled && browser.contextualIdentities && await browser.contextualIdentities.query({});
       if (!identities) return;
       identities.forEach(({cookieStoreId}) => {
         if (!this.policies.hasOwnProperty(cookieStoreId)) {
