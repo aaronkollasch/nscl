@@ -209,58 +209,5 @@
         }
       });
     }
-  } else if (typeof browser.runtime.sendSyncMessage !== "function") {
-    // Content Script side
-    let uuid = () => (Math.random() * Date.now()).toString(16);
-    let docUrl = document.URL;
-    browser.runtime.sendSyncMessage = (msg, callback) => {
-      let msgId = `${uuid()},${docUrl}`;
-      let url = `${ENDPOINT_PREFIX}id=${encodeURIComponent(msgId)}` +
-        `&url=${encodeURIComponent(docUrl)}`;
-      if (window.top === window) {
-        // we add top URL information because Chromium doesn't know anything
-        // about frameAncestors
-        url += "&top=true";
-      }
-
-      if (MOZILLA) {
-        // on Firefox we first need to send an async message telling the
-        // background script about the tab ID, which does not get sent
-        // with "privileged" XHR
-        browser.runtime.sendMessage(
-          {__syncMessage__: {id: msgId, payload: msg}}
-        );
-      }
-      // then we send the payload using a privileged XHR, which is not subject
-      // to CORS but unfortunately doesn't carry any tab id except on Chromium
-
-      url += `&msg=${encodeURIComponent(JSON.stringify(msg))}`; // adding the payload
-      let r = new XMLHttpRequest();
-      let result;
-      let chunks = [];
-      for (;;) {
-        try {
-          r.open("GET", url, false);
-          r.send(null);
-          result = JSON.parse(r.responseText);
-          if ("chunk" in result) {
-            let {chunk, more} = result;
-            chunks.push(chunk);
-            if (more) {
-              continue;
-            }
-            result = JSON.parse(chunks.join(''));
-          } else {
-            if (result.error) throw result.error;
-            result = "payload" in result ? result.payload : result;
-          }
-        } catch(e) {
-          console.error(`syncMessage error in ${document.URL}: ${e.message} (response ${r.responseText})`);
-        }
-        break;
-      }
-      if (callback) callback(result);
-      return result;
-    };
   }
 })();
