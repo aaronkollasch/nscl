@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright (C) 2021-2024 Giorgio Maone <https://maone.net>
 #
